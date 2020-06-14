@@ -7,7 +7,7 @@ if ((!isset($_POST['login'])) || (!isset($_POST['haslo']))) {
     exit();
 }
 
-require_once "connect.php";
+require_once "connect2.php";
 
 $polaczenie = @new mysqli($host, $db_user, $db_password, $db_name);
 
@@ -22,7 +22,7 @@ if ($polaczenie->connect_errno != 0) {
     //if by w razie zapytania ktore zle jest skonstruowane w zmiennej $sql
     if ($rezultat = @$polaczenie->query(
         sprintf(
-            "Select * from uzytkownicy where user='%s'",
+            "Select * from klienci where login='%s'",
             mysqli_real_escape_string($polaczenie, $login)
         )
     )) {
@@ -32,23 +32,23 @@ if ($polaczenie->connect_errno != 0) {
 
             $wiersz = ($rezultat)->fetch_assoc();
 
-            if (password_verify($haslo, $wiersz['pass'])) {
+            if (password_verify($haslo, $wiersz['haslo'])) {
 
                 $_SESSION['zalogowany'] = true;
-
+                
                 $_SESSION['id'] = $wiersz['id'];
-                $_SESSION['user'] = $wiersz['user'];
-                $_SESSION['drewno'] = $wiersz['drewno'];
-                $_SESSION['kamien'] = $wiersz['kamien'];
-                $_SESSION['zboze'] = $wiersz['zboze'];
+                $_SESSION['imie'] = $wiersz['imie'];
+                $_SESSION['nazwisko'] = $wiersz['nazwisko'];
+                $_SESSION['login'] = $wiersz['login'];
+                $_SESSION['saldo_konta'] = $wiersz['saldo_konta'];
                 $_SESSION['email'] = $wiersz['email'];
-                $_SESSION['dnipremium'] = $wiersz['dnipremium'];
+                $_SESSION['kredyt'] = $wiersz['kredyt'];
 
                 unset($_SESSION['blad']);
                 $rezultat->free_result();
                 header('Location: zalogowany.php');
             } else {
-                $_SESSION['blad'] = '<span style="color:red">Nieprawidłowy login lub hasło</span>';
+                $_SESSION['blad'] = $wiersz['haslo'].'<span style="color:red">Nieprawidłowy login lub hasłooo</span>';
                 header('Location: index.php');
             }
         } else {
@@ -61,3 +61,4 @@ if ($polaczenie->connect_errno != 0) {
 
     $polaczenie->close();
 }
+?>

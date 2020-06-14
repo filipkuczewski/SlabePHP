@@ -1,0 +1,42 @@
+Projekt FiKu Bank - Filip Kuczewski
+
+
+Strona index.html 		
+
+- strona główna, strona od początku do końca sama stylizowana bez wspomagaczy AdminLTE bądź innych;
+- sticky navbar okodawany za pomocą JavaScript;
+- niestety brak responsywności;
+
+Strona index.php (strolna logowania)
+
+-przenosi do rejestracji bądź daje opcje zalogowania się do systemu za pośrednictwem "nick" (niestety nie przemyślałem wcześniej tego by logowanie przebiegało za pomocą nr konta jak to zwykle bywa w bankach);
+
+Strona rejestracja.php
+- tak jak i strona index.php stylizowana od zera na własną rękę;
+- sprawdza błędy tak jak i index.php;
+- dodana recaptcha;
+- po pomyślnej rejestracji przekierowuje do witamy.php gdzie następnie idziemy do index.php i się logujemy;
+
+Strona zalogowany.php
+- komunikat na wstępie powitalny przed załadowaniem strony;
+- stylizowana za pośrednictwem AdminLTE co sygnalizowane jest w stopce;
+- pobiera z bazy właściwości konta i wyświetle niektóre z nich np. saldo konta;
+- każde nowoutworzone konto ma nadane 1000zł na start co widać przy pierwszym logowaniu
+- przekierowanie do przelewów.php lub do historii.php
+- ma uproszczoną historie na stronie głównej która zamierzenie wyświetla dynamicznie ostatnie tranzakcje związane z naszym kontem (o ile takie są);
+-strona responsywna korzystająca z bootstrapa;
+
+
+Strona przelewy.php 
+- umożliwia użytkownikowi realizować przelewy na wszystkie konta które istnieją w bazie poza swoim własnym
+- dynamicznie zczytuje saldo po dokonaniu udanego przelewu;
+- największą wadą jest brak sprawdzania błędów i czy się popełniło czy też nie przelew może być zrealizowany bądź nie, lecz zawsze wyświetla że "przelew zakończony sukcesem na stronie obslugaPrzelewy.php;
+- odnośniki do głównego panelu;
+- wyeliminowano problem że przy odświeżeniu "obslugaPrzelewy.php" nie następuje ponowny przelew, lecz przenosi do strony głównej; (idioto odporna bo po co to odświeżać?);
+
+Strona historia.php
+-wyświetla historie ostatnich tranzakcji w zależności od "widzimisie" użytkownika 0 - 2 - 5 - 10 - 20 - 50 ostatnich operacji;
+-responsywna jak i przelewy;
+
+Strona logout.php
+Korzysta z tego zalogowany, historia, przelewy, usuwa wszystkie zapamiętane zmienne sesji i przenosi do strony logowania;

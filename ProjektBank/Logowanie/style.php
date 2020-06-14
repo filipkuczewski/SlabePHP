@@ -186,12 +186,19 @@ a:active {
     width: 250px;
     height: 600px;
     padding-bottom:145px;
-    background-image: url(../popcorn.jpg);
+    background-image: url(../pieniadz.jpg);
 
     border-top-left-radius: 50px;
     border-top-right-radius: 50px;
     border-bottom-left-radius: 70px;
-	border-bottom-right-radius: 70px;
+    border-bottom-right-radius: 70px;
+
+    overflow: hidden;
+    
+     
+    box-shadow: 3px 3px 30px 5px rgba(19, 16, 16, 0.9);
+	-webkit-box-shadow: 3px 3px 30px 5px (19, 16, 16, 0.9);
+    -moz-box-shadow: 3px 3px 30px 5px (19, 16, 16, 0.9);
 }
 
 /*...KONIEC - Blok Prawy...*/
@@ -221,7 +228,7 @@ input[type=password] {
 	padding: 10px;
     box-sizing: border-box;
     outline: none;
-    margin-top: 10px;
+    margin-bottom: 10px;
 }
 input[type=text]:focus,
 input[type=password]:focus{
@@ -234,7 +241,7 @@ input[type=password]:focus{
 } 
 input[type=submit] {
 	width: 300px;
-	background-color: #36b03c;
+	background-color: grey;
 	font-size: 20px;
 	color: white;
 	padding: 15px 10px;
@@ -253,7 +260,10 @@ input[type=submit]:focus{
     -moz-box-shadow: 0px 0px 15px 5px rgba(204, 204, 204, 0.9);
 }
 input[type=submit]:hover { 
-	background-color: #37b93d;
+    background-color: #3a3b45;
+	box-shadow: 0px 0px 15px 5px rgba(236, 70, 70, 1);
+	-webkit-box-shadow: 0px 0px 15px 5px rgba(236, 70, 70, 1);
+    -moz-box-shadow: 0px 0px 15px 5px rgba(236, 70, 70, 1);
 }
 
 /*...Koniec środkowego okna logowania */
@@ -284,3 +294,4 @@ input[type=submit]:hover {
     .g-recaptcha {
         display: inline-block;
     }
+    

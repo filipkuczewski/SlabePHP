@@ -7,11 +7,12 @@ if (!isset($_SESSION['zalogowany'])) {
     header('Location: index.php');
     exit();
 }
-//Komunikat powitalny
+
 if (!isset($_SESSION['komunikat'])) {
     $_SESSION['komunikat'] = 1;
     echo "<script language='javascript' type='text/javascript'>alert('Witamy w naszym banku. Kliknij by przejść dalej.'); </script>";
 }
+
 if (isset($_SESSION['odswiezanie'])) {
     unset($_SESSION['odswiezanie']);
 }
@@ -34,7 +35,7 @@ if (isset($_SESSION['odswiezanie'])) {
     <link rel="stylesheet" href="../AdminLTE/dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-
+    <link rel="stylesheet" type="text/css" href="przelewystyle.php">
 </head>
 
 <body>
@@ -64,7 +65,7 @@ if (isset($_SESSION['odswiezanie'])) {
                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Główna Lista rozwijana</a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                             <li><a href="przelewy.php" class="dropdown-item">Przelej pieniądze </a></li>
-                            <li><a href="logout.php" class="dropdown-item">Wyloguj się</a></li>
+                            <li><a href="#" class="dropdown-item">Wyloguj się</a></li>
 
                             <li class="dropdown-divider"></li>
 
@@ -130,88 +131,59 @@ if (isset($_SESSION['odswiezanie'])) {
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title"> <?php
-                                                        echo "<p>Witaj " . $_SESSION['imie'] . " " . $_SESSION['nazwisko'] . '! </p>';
-                                                        ?>
-                                </h5>
-                                <p class="card-text">
-
+                                <h5 class="card-title">
                                     <?php
                                     echo "<b>Środki na koncie: </b> " . $_SESSION['saldo_konta'] . " zł</p>";
 
-                                    echo "<p><b>Obciążenia kredytowe:</b> " . $_SESSION['kredyt'] . " zł</p>";
+                                    ?>
+
+                                    <!--...Początek zakładki form do przelewu do innego użytkownika... Proces wysyłany do obslugaPrzelewy.php-->
+                                    <?php
+                                    echo ' 
+                                        <form name="form" action="obslugaPrzelewy.php" method="post">
+                                        <select name="klient" size="1">' .
+
+                                        //Łączenie z Bazą Danych
+                                        require_once "connect2.php";
+
+                                    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+
+                                    /*...Zapytanie do bazy generujące osoby wszystkie oprócz siebie. ...*/
+                                    $sql = "Select id, imie, nazwisko, login from klienci where id<>" . $_SESSION['id'];
+                                    $rezultat = $polaczenie->query($sql);
+
+                                    if ($rezultat->num_rows > 0) {
+                                        while ($row = $rezultat->fetch_assoc()) {
+
+                                            /*...Wypisanie do panelu rozwijanego osób z bazy...*/
+
+                                            echo '<option value="' . $row["login"] . '">' . $row["imie"] . " " . $row["nazwisko"] . '</option>';
+                                        }
+                                    } else {
+                                        echo "0 rezultatów zapytania";
+                                    }
+                                    echo '</select>';
+                                    $polaczenie->close();
 
                                     ?>
+                                    
+                                    <input name="kwota" type="text" placeholder="kwota xxx.xx" onfocus="this.placeholder=''" onblur="this.placeholder='kwota xxx.xx'">
+
+                                    <input name="komentarz" type="text" placeholder="komentarz" onfocus="this.placeholder=''" onblur="this.placeholder='komentarz'">
+
+                                    <input type="submit" style="margin-bottom: 10px;" value="Wyślij przelew">
+
+                                    </form>
+                                    <!--...Koniec zakładki form... -->
+
+                                </h5>
+                                <p class="card-text">
+                                    <!-- /*...Może coś jeszcze tu będzie ...*/ -->
                                 </p>
                             </div>
                         </div>
-
-                        <div class="card card-primary card-outline">
-                            <div class="card-body">
-                                <p class="card-text" style="font-size: 40px;">
-                                    <a href="przelewy.php">Przelej pieniądze <i style="font-size: 30px;">>></i></a>
-                                </p>
-                                <a href="#" class="card-link">Dowiedz się więcej</a>
-                                <?php
-                                if ($_SESSION['saldo_konta'] <= 200) {
-                                    echo '<a href="#" class="card-link">Masz już tylko: ' . $_SESSION['saldo_konta'] . ' zł. Może kredyt?</a>';
-                                }
-                                ?>
-                            </div>
-                        </div><!-- /.card -->
                     </div>
-                    <!-- /.col-md-6 -->
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title m-0">Historia ostatnich tranzakcji:</h5>
 
-                                <?php
-                                //Łączenie z Bazą Danych
-                                require_once "connect2.php";
-
-                                $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-
-                                /*...Odpalenie zapytania do tabeli historia_tranzakcji...*/
-                                
-                                $hist = "select * from historia_tranzakcji where (login_odbiorca='".$_SESSION['login']."' or login_wysylajacy='".$_SESSION['login']."') order by id desc limit 3";
-                                $r = $polaczenie->query($hist);
-
-                                /*...Wypisanie wszystkiego z bazy danych historii  ...*/
-                                while ($row = $r->fetch_assoc()) {
-
-                                    echo "</br></br>Przelew wysłano do:  <b>" . $row["login_odbiorca"] . "</b>  na kwotę:  <b>" . $row["kwota"] . " zł</b>  Opis : <b>" . $row["opis_komentarz"] . "</b></br>";
-                                }
-
-                                /*...Koniec operacji na tabeli histria_tranzakcji...*/
-
-                                ?>
-
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">Tranzakcje:</h6>
-
-                                <p class="card-text">Tu ostatnie 3 operacje na koncie</p>
-                                <a href="historia.php" class="btn btn-primary">Historia szczegółowa</a>
-                            </div>
-                        </div>
-
-                        <div class="card card-primary card-outline">
-                            <div class="card-header">
-                                <h5 class="card-title m-0">Obciążenia kredytowe:</h5>
-                            </div>
-                            <div class="card-body">
-                                <?php
-                                if ($_SESSION['kredyt'] != 0) {
-                                    echo "Twoje obciążenia na karcie kredytowej wynoszą: " . $_SESSION['kredyt'];
-                                } else {
-                                    echo "Nie masz żadnych kredytów.";
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /.col-md-6 -->
                 </div>
                 <!-- /.row -->
             </div><!-- /.container-fluid -->

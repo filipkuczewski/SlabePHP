@@ -7,6 +7,22 @@ if (isset($_POST['email'])) {
     //Udana walidacja? Załóżmy, że tak!
     $wszystko_ok = true;
 
+    //Sprawdź poprawnść imienia
+    $imie = $_POST['imie'];
+
+    if ((strlen($imie) < 3) || (strlen($imie) > 20)) {
+        $wszystko_ok = false;
+        $_SESSION['e_imie'] = "Imię musi posiadać od 3 do 20 znaków!";
+    }
+
+    //Sprawdź poprawnść nazwiska
+    $nazwisko = $_POST['nazwisko'];
+
+    if ((strlen($nazwisko) < 2) || (strlen($nazwisko) > 38)) {
+        $wszystko_ok = false;
+        $_SESSION['e_nazwisko'] = "Nazwisko musi posiadać od 2 do 38 znaków!";
+    }
+
     //Sprawdź poprawnść nickname'a
     $nick = $_POST['nick'];
 
@@ -52,8 +68,10 @@ if (isset($_POST['email'])) {
     }
 
     //Bot or not? Oto jest pytanie!
+    /*...Klucz tajny recaptchy na localhoscie
     $sekret = "6LcOyecUAAAAABMNlLLvYw2dMTbW7BkQShDi3ZrY";
-
+    ...*/
+    $sekret = "6LfAu6MZAAAAAI23JEFgO1VVYSZL0BCCzdFI4KeL";
     $sprawdz = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $sekret . '&response=' . $_POST['g-recaptcha-response']);
 
     $odpowiedz = json_decode($sprawdz);
@@ -63,13 +81,19 @@ if (isset($_POST['email'])) {
         $_SESSION['e_bot'] = "Potwierdź, że nie jesteś botem!";
     }
     //Zapamiętaj wprowadzone dane
+
+    $_SESSION['fr_imie'] = $imie;
+    $_SESSION['fr_nazwisko'] = $nazwisko;
     $_SESSION['fr_nick'] = $nick;
     $_SESSION['fr_email'] = $email;
     $_SESSION['fr_haslo1'] = $haslo1;
     $_SESSION['fr_haslo2'] = $haslo2;
     if (isset($_POST['regulamin'])) $_SESSION['fr_regulamin'] = true;
 
-    require_once "connect.php";
+
+
+    //Łączenie z Bazą Danych
+    require_once "connect2.php";
     mysqli_report(MYSQLI_REPORT_STRICT);
     try {
 
@@ -79,7 +103,7 @@ if (isset($_POST['email'])) {
         } else {
 
             //Czy email już istnieje?
-            $rezultat = $polaczenie->query("Select id from uzytkownicy where email='$email'");
+            $rezultat = $polaczenie->query("Select id from klienci where email='$email'");
 
             if (!$rezultat) throw new Exception($polaczenie->error);
 
@@ -91,7 +115,7 @@ if (isset($_POST['email'])) {
             }
 
             //Czy nick już istnieje?
-            $rezultat = $polaczenie->query("Select id from uzytkownicy where user='$nick'");
+            $rezultat = $polaczenie->query("Select id from klienci where login='$nick'");
 
             if (!$rezultat) throw new Exception($polaczenie->error);
 
@@ -106,7 +130,7 @@ if (isset($_POST['email'])) {
             if ($wszystko_ok == true) {
 
                 //Hurra, wszystkie testy zaliczone, dodajemy gracza do bazy
-                if ($polaczenie->query("Insert into uzytkownicy values (NULL,'$nick','$haslo_hash','$email',100,100,100, now() + interval 14 day)")) {
+                if ($polaczenie->query("Insert into klienci values (NULL,'$imie','$nazwisko','$email','$nick','$haslo_hash',1000,0)")) {
                     $_SESSION['udanarejestracja'] = true;
                     header('Location: witamy.php');
                 } else {
@@ -148,19 +172,50 @@ if (isset($_POST['email'])) {
 
 <body>
     <div class="szerokosc">
-       
+
         <div id="container" style="margin-top: 0px;">
-                <i><b>FiKuBank - Rejestracja konta</b></i>
-                </br>
+            <i><b>FiKuBank - Rejestracja konta</b></i>
+            </br>
             </br>
             <form method="post">
 
-                Nickname: </br><input type="text" value="<?php
-                                                            if (isset($_SESSION['fr_nick'])) {
-                                                                echo $_SESSION['fr_nick'];
-                                                                unset($_SESSION['fr_nick']);
-                                                            }
-                                                            ?>" name="nick" /></br>
+
+                Imię:</br> <input type="text" value="<?php
+                                                        if (isset($_SESSION['fr_imie'])) {
+                                                            echo $_SESSION['fr_imie'];
+                                                            unset($_SESSION['fr_imie']);
+                                                        }
+                                                        ?>" name="imie"/></br>
+                
+                <?php
+                if (isset($_SESSION['e_imie'])) {
+                    echo '<div class="error">' . $_SESSION['e_imie'] . '</div>';
+                    unset($_SESSION['e_imie']);
+                }
+                ?>
+
+
+
+                Nazwisko:</br> <input type="text" value="<?php
+                                                        if (isset($_SESSION['fr_nazwisko'])) {
+                                                            echo $_SESSION['fr_nazwisko'];
+                                                            unset($_SESSION['fr_nazwisko']);
+                                                        }
+                                                        ?>" name="nazwisko"/></br>
+                <?php
+                if (isset($_SESSION['e_nazwisko'])) {
+                    echo '<div class="error">' . $_SESSION['e_nazwisko'] . '</div>';
+                    unset($_SESSION['e_nazwisko']);
+                }
+                ?>
+
+
+                Nick: </br><input type="text" value="<?php
+                                                        if (isset($_SESSION['fr_nick'])) {
+                                                            echo $_SESSION['fr_nick'];
+                                                            unset($_SESSION['fr_nick']);
+                                                        }
+                                                        ?>" name="nick" /></br>
 
                 <?php
                 if (isset($_SESSION['e_nick'])) {
@@ -220,7 +275,10 @@ if (isset($_POST['email'])) {
                 }
                 ?>
                 <div class="text-xs-center">
-                    <div class="g-recaptcha" data-sitekey="6LcOyecUAAAAAEvu9cpst9Vo5DUK2sEu7ty5TDtI"></div>
+                  <!--Recaptcha na localhoscie  
+                  <div class="g-recaptcha" data-sitekey="6LcOyecUAAAAAEvu9cpst9Vo5DUK2sEu7ty5TDtI"></div> 
+                  -->
+                    <div class="g-recaptcha" data-sitekey="6LfAu6MZAAAAAOpTtKbocVXpd86GuUE5khCgtnWt"></div>
                 </div>
                 </br>
                 <?php
@@ -235,7 +293,7 @@ if (isset($_POST['email'])) {
             <a href="index.php">Logowanie>></a>
         </div>
     </div>
-    
+
 </body>
 
 </html>

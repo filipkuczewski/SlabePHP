@@ -3,10 +3,12 @@
 session_start();
 
 if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
-    header('Location: zalogowany.php');
-    exit();
+ header('Location: zalogowany.php');
+  exit();
 }
 
+
+unset($_SESSION['zalogowany']);
 ?>
 
 
@@ -26,15 +28,14 @@ if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
 
 <body>
 
-
     <div class="szerokosc">
 
         <nav>
             <div id="logo">
-                <a href="../bankStrGlowna.html"><img src="../FikuBank.jpg" /></a>
+                <a href="../index.html"><img src="../FikuBank.jpg" /></a>
             </div>
             <div id="logo2">
-                <a href="../bankStrGlowna.html" style="float: right;padding-right: 50px;">Powrót do strony głównej</a>
+                <a href="../index.html" style="float: right;padding-right: 50px;">Powrót do strony głównej</a>
                 <a href="#" style="float: right;padding-right: 50px;">Kontakt</a>
             </div>
             <div style="clear: both;"></div>
@@ -72,15 +73,13 @@ if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
 
                     <input type="submit" style="margin-bottom: 10px;" value="Zaloguj się">
 
-
-
                 </form>
                 <?php
                 if (isset($_SESSION['blad'])) echo $_SESSION['blad'];
                 unset($_SESSION['blad']);
                 ?></br>
-                <a href="rejestracja.php">Załóż konto>></a>
 
+                <a href="rejestracja.php">Załóż konto>></a>
 
             </div>
 
@@ -97,12 +96,7 @@ if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
 
         <div class="prawy"></div>
     </div>
-    <footer>
-
-        <div class="info">
-            Filip Kuczewski - Wszelkie prawa zastrzeżone &copy; 2020.
-        </div>
-    </footer>
+    
 
 </body>
 

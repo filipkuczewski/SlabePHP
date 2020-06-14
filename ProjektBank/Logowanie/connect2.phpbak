@@ -1,0 +1,12 @@
+<?php
+
+
+
+$host = "localhost";
+
+$db_user ="filipkuc_bank";
+
+$db_password = "alLLrUd)SM@m";
+
+$db_name = "filipkuc_fikubank";
+
